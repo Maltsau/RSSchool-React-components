@@ -11,12 +11,6 @@
     "preview": "vite preview",
     "prepare": "husky install"
   },
-  "lint-staged": {
-    "*.{js,css,ts,tsx,jsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
-  },
   "dependencies": {
     "@types/styled-components": "^5.1.29",
     "eslint-config-airbnb-typescript": "^17.1.0",
