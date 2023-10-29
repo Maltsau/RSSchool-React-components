@@ -75,15 +75,19 @@ const PagginationControls = styled.div`
   gap: 20px;
 `;
 
-const PagginationButton = styled.div<{ isActive: boolean }>`
-  cursor: ${({ isActive }) => (isActive ? 'pointer' : 'auto')};
-  border: ${({ isActive }) =>
-    isActive ? '1px solid white' : '1px solid grey'};
-  color: ${({ isActive }) => (isActive ? 'white' : 'grey')};
+const PagginationItem = styled.div`
   border-radius: 30px;
   padding: 0 7px;
   display: flex;
   justify-content: center;
+  border: 1px solid white;
+`;
+
+const PagginationButton = styled(PagginationItem)<{ isActive: boolean }>`
+  cursor: ${({ isActive }) => (isActive ? 'pointer' : 'auto')};
+  border: ${({ isActive }) =>
+    isActive ? '1px solid white' : '1px solid grey'};
+  color: ${({ isActive }) => (isActive ? 'white' : 'grey')};
 `;
 
 class App extends Component<object, State> {
@@ -100,8 +104,9 @@ class App extends Component<object, State> {
     };
   }
 
-  masterUrl = 'https://swapi.dev/api/people/';
-  previousSearch = (localStorage.getItem('previousSearch') !== null
+  private masterUrl = 'https://swapi.dev/api/people/';
+
+  private previousSearch = (localStorage.getItem('previousSearch') !== null
     ? localStorage.getItem('previousSearch')
     : '') as string;
 
@@ -126,7 +131,7 @@ class App extends Component<object, State> {
       });
   }
 
-  turnPage = (url: string, direction: -1 | 1) => {
+  private turnPage = (url: string, direction: -1 | 1) => {
     this.setState({ isLoading: true });
     fetch(url)
       .then((response) => response.json())
@@ -136,25 +141,25 @@ class App extends Component<object, State> {
           previous: string | null;
           next: string | null;
         }) =>
-          this.setState({
+          this.setState((prevState) => ({
             characters: data.results,
             isLoading: false,
-            currentPage: this.state.currentPage + direction,
+            currentPage: prevState.currentPage + direction,
             previous: data.previous,
             next: data.next,
-          })
+          }))
       )
       .catch(() => {
         this.setState({ isError: true });
       });
   };
 
-  handleSearchChange = (e: React.SyntheticEvent) => {
+  private handleSearchChange = (e: React.SyntheticEvent) => {
     const target = e.target as HTMLInputElement;
     this.setState({ searcInput: target.value });
   };
 
-  handleSearch() {
+  private handleSearch() {
     this.setState({ isLoading: true });
     fetch(`${this.masterUrl}?search=${this.state.searcInput}`)
       .then((response) => response.json())
@@ -232,7 +237,7 @@ class App extends Component<object, State> {
                     }
                   }}
                 >{`<`}</PagginationButton>
-                <PagginationButton isActive>{currentPage}</PagginationButton>
+                <PagginationItem>{currentPage}</PagginationItem>
                 <PagginationButton
                   isActive={!!next}
                   onClick={() => {
