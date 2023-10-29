@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-const LoaderContainer = styled.div``;
+import loaderImg from '../assets/images/loader-image.png';
 
 const spin = keyframes`
   from {
@@ -13,20 +13,25 @@ const spin = keyframes`
 `;
 
 const LoaderBody = styled.div`
-  border: 16px solid #f3f3f3;
-  border-top: 16px solid #3498db;
-  border-radius: 50%;
   width: 130px;
   height: 130px;
   animation: ${spin} 2s linear infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const LoaderImage = styled.img`
+  width: 160px;
+  height: 160px;
 `;
 
 class Loader extends Component {
   render(): React.ReactNode {
     return (
-      <LoaderContainer>
-        <LoaderBody />
-      </LoaderContainer>
+      <LoaderBody>
+        <LoaderImage src={loaderImg} alt="loader-image" />
+      </LoaderBody>
     );
   }
 }

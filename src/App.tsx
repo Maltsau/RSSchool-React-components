@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
@@ -24,6 +25,7 @@ interface State {
   currentPage: number;
   previous: string | null;
   next: string | null;
+  pages: number;
 }
 
 const Wrapper = styled.main`
@@ -36,6 +38,7 @@ const Wrapper = styled.main`
 `;
 
 const SearchContainer = styled.div`
+  width: 100%;
   display: flex;
   gap: 10px;
   & input {
@@ -46,10 +49,14 @@ const SearchContainer = styled.div`
     cursor: pointer;
     font-size: 20px;
   }
+  & button:nth-child(3) {
+    margin-left: auto;
+  }
 `;
 
 const ContentContainer = styled.div`
   width: 100%;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -77,17 +84,17 @@ const PagginationControls = styled.div`
 
 const PagginationItem = styled.div`
   border-radius: 30px;
-  padding: 0 7px;
+  padding: 0 10px;
   display: flex;
   justify-content: center;
   border: 1px solid white;
 `;
 
-const PagginationButton = styled(PagginationItem)<{ isActive: boolean }>`
-  cursor: ${({ isActive }) => (isActive ? 'pointer' : 'auto')};
-  border: ${({ isActive }) =>
-    isActive ? '1px solid white' : '1px solid grey'};
-  color: ${({ isActive }) => (isActive ? 'white' : 'grey')};
+const PagginationButton = styled(PagginationItem)<{ $active: boolean }>`
+  padding: 0 7px;
+  cursor: ${({ $active }) => ($active ? 'pointer' : 'auto')};
+  border: ${({ $active }) => ($active ? '1px solid white' : '1px solid grey')};
+  color: ${({ $active }) => ($active ? 'white' : 'grey')};
 `;
 
 class App extends Component<object, State> {
@@ -101,7 +108,9 @@ class App extends Component<object, State> {
       currentPage: 1,
       previous: null,
       next: null,
+      pages: 1,
     };
+    this.fetchData(this.masterUrl);
   }
 
   private masterUrl = 'https://swapi.dev/api/people/';
@@ -110,49 +119,26 @@ class App extends Component<object, State> {
     ? localStorage.getItem('previousSearch')
     : '') as string;
 
-  componentDidMount() {
-    fetch(this.masterUrl)
+  private fetchData(url: string, direction?: -1 | 1) {
+    this.setState({ isLoading: true, isError: false });
+    fetch(url)
       .then((response) => response.json())
-      .then(
-        (data: {
-          results: Character[];
-          previous: string | null;
-          next: string | null;
-        }) =>
-          this.setState({
-            characters: data.results,
-            isLoading: false,
-            previous: data.previous,
-            next: data.next,
-          })
-      )
+      .then((data) => {
+        this.setState((prevState) => ({
+          characters: data.results,
+          isLoading: false,
+          currentPage: direction
+            ? prevState.currentPage + direction
+            : prevState.currentPage,
+          previous: data.previous,
+          next: data.next,
+          pages: Math.ceil(data.count / 10),
+        }));
+      })
       .catch(() => {
         this.setState({ isError: true });
       });
   }
-
-  private turnPage = (url: string, direction: -1 | 1) => {
-    this.setState({ isLoading: true });
-    fetch(url)
-      .then((response) => response.json())
-      .then(
-        (data: {
-          results: Character[];
-          previous: string | null;
-          next: string | null;
-        }) =>
-          this.setState((prevState) => ({
-            characters: data.results,
-            isLoading: false,
-            currentPage: prevState.currentPage + direction,
-            previous: data.previous,
-            next: data.next,
-          }))
-      )
-      .catch(() => {
-        this.setState({ isError: true });
-      });
-  };
 
   private handleSearchChange = (e: React.SyntheticEvent) => {
     const target = e.target as HTMLInputElement;
@@ -160,29 +146,18 @@ class App extends Component<object, State> {
   };
 
   private handleSearch() {
-    this.setState({ isLoading: true });
-    fetch(`${this.masterUrl}?search=${this.state.searcInput}`)
-      .then((response) => response.json())
-      .then(
-        (data: {
-          results: Character[];
-          previous: string | null;
-          next: string | null;
-        }) => {
-          this.setState({
-            characters: data.results,
-            isLoading: false,
-            currentPage: 1,
-            previous: data.previous,
-            next: data.next,
-          });
-          localStorage.setItem('previousSearch', this.state.searcInput);
-        }
-      )
-      .catch(() => {
-        this.setState({ isError: true });
-      });
+    this.fetchData(`${this.masterUrl}?search=${this.state.searcInput}`);
+    localStorage.setItem('previousSearch', this.state.searcInput);
   }
+
+  private throwError = () => {
+    try {
+      throw new Error('This is a manually triggered error');
+    } catch {
+      this.setState({ isError: true });
+      throw new Error('This is a manually triggered error');
+    }
+  };
 
   render() {
     const {
@@ -193,64 +168,82 @@ class App extends Component<object, State> {
       currentPage,
       previous,
       next,
+      pages,
     } = this.state;
     return (
-      <Wrapper>
-        <SearchContainer>
-          <input
-            placeholder={this.previousSearch}
-            size={50}
-            type="search"
-            value={searcInput}
-            onChange={this.handleSearchChange}
-          />
-          <button
-            onClick={() => {
-              this.handleSearch();
-            }}
-          >
-            Search
-          </button>
-        </SearchContainer>
-        <ContentContainer>
-          {isError ? (
-            <ErrorMessage />
-          ) : isLoading ? (
-            <Loader />
-          ) : characters.length ? (
-            <CharacterList>
-              {characters.map((character, index) => (
-                <li key={index}>{character.name}</li>
-              ))}
-            </CharacterList>
-          ) : (
-            <NothingFoundMessage />
-          )}
-          {next || previous ? (
-            isLoading ? null : (
-              <PagginationControls>
-                <PagginationButton
-                  isActive={!!previous}
+      <>
+        {isError ? (
+          <ErrorMessage />
+        ) : (
+          <ErrorBoundary>
+            <Wrapper>
+              <SearchContainer>
+                <input
+                  placeholder={this.previousSearch}
+                  size={50}
+                  type="search"
+                  value={searcInput}
+                  onChange={this.handleSearchChange}
+                />
+                <button
                   onClick={() => {
-                    if (previous) {
-                      this.turnPage(previous, -1);
-                    }
+                    this.handleSearch();
                   }}
-                >{`<`}</PagginationButton>
-                <PagginationItem>{currentPage}</PagginationItem>
-                <PagginationButton
-                  isActive={!!next}
+                >
+                  Search
+                </button>
+                <button
                   onClick={() => {
-                    if (next) {
-                      this.turnPage(next, +1);
-                    }
+                    this.throwError();
                   }}
-                >{`>`}</PagginationButton>
-              </PagginationControls>
-            )
-          ) : null}
-        </ContentContainer>
-      </Wrapper>
+                >
+                  Throw Error
+                </button>
+              </SearchContainer>
+              <ContentContainer>
+                {isError ? (
+                  <ErrorMessage />
+                ) : isLoading ? (
+                  <Loader />
+                ) : characters.length ? (
+                  <>
+                    <CharacterList>
+                      {characters.map((character) => (
+                        <li key={character.name}>{character.name}</li>
+                      ))}
+                    </CharacterList>
+                    {next || previous ? (
+                      isLoading ? null : (
+                        <PagginationControls>
+                          <PagginationButton
+                            $active={!!previous}
+                            onClick={() => {
+                              if (previous) {
+                                this.fetchData(previous, -1);
+                              }
+                            }}
+                          >{`<`}</PagginationButton>
+                          <PagginationItem>{`${currentPage} of ${pages}`}</PagginationItem>
+                          <PagginationButton
+                            $active={!!next}
+                            onClick={() => {
+                              if (next) {
+                                this.fetchData(next, +1);
+                              }
+                            }}
+                          >{`>`}</PagginationButton>
+                        </PagginationControls>
+                      )
+                    ) : null}
+                  </>
+                ) : (
+                  <NothingFoundMessage />
+                )}
+              </ContentContainer>
+            </Wrapper>
+          </ErrorBoundary>
+        )}
+      </>
     );
   }
 }
