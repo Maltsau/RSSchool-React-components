@@ -1,32 +1,17 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import ErrorBoundary from './components/ErrorBoundary';
+// import { QueryClient, QueryClientProvider } from 'react-query';
+import useFetchData from './hooks/useFetchData';
 
 import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
 import NothingFoundMessage from './components/NothingFoundMessage';
+import Header from './components/Header';
+// import ErrorBoundary from './components/ErrorBoundary';
+// import { IDataBase } from './types';
+// import { useState } from 'react';
 
-interface Character {
-  name: string;
-  height: string;
-  mass: string;
-  hair_color: string;
-  skin_color: string;
-  eye_color: string;
-  birth_year: string;
-  gender: string;
-}
-
-interface State {
-  characters: Character[];
-  isLoading: boolean;
-  isError: boolean;
-  searcInput: string;
-  currentPage: number;
-  previous: string | null;
-  next: string | null;
-  pages: number;
-}
+// const queryClient = new QueryClient();
 
 const Wrapper = styled.main`
   padding: 50px;
@@ -35,23 +20,6 @@ const Wrapper = styled.main`
   justify-content: flex-start;
   align-items: center;
   gap: 50px;
-`;
-
-const SearchContainer = styled.div`
-  width: 100%;
-  display: flex;
-  gap: 10px;
-  & input {
-    font-size: 25px;
-    padding: 0 5px;
-  }
-  & button {
-    cursor: pointer;
-    font-size: 20px;
-  }
-  & button:nth-child(3) {
-    margin-left: auto;
-  }
 `;
 
 const ContentContainer = styled.div`
@@ -97,7 +65,87 @@ const PagginationButton = styled(PagginationItem)<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? 'white' : 'grey')};
 `;
 
-class App extends Component<object, State> {
+export default function App() {
+  /* const [DB, setDB] = useState<IDataBase | object>({}); */
+  const [currentUrl /* setCurrentUrl */] = useState(
+    'https://swapi.dev/api/people/'
+  );
+
+  const { isError, isLoading, data, refetch } = useFetchData(currentUrl);
+  // if (isSuccess) {
+  //   setDB(data);
+  // }
+
+  return (
+    <Wrapper>
+      <Header />
+      {isError ? (
+        <ErrorMessage />
+      ) : isLoading ? (
+        <Loader />
+      ) : (
+        <ContentContainer>
+          <CharacterList>
+            {data?.results.length ? (
+              data?.results.map((character) => (
+                <li key={character.name}>{character.name}</li>
+              ))
+            ) : (
+              <NothingFoundMessage />
+            )}
+          </CharacterList>
+          {data?.results.length ? (
+            <PagginationControls>
+              <PagginationButton
+                onClick={() => {
+                  refetch();
+                }}
+              >{`<`}</PagginationButton>
+              <PagginationItem>PAGE</PagginationItem>
+              <PagginationButton>{`>`}</PagginationButton>
+            </PagginationControls>
+          ) : null}
+        </ContentContainer>
+      )}
+    </Wrapper>
+  );
+}
+
+// export default function App() {
+//   // const [hasError, setHasError] = useState<boolean>(false);
+//   // const [searchInput, setSearchInput] = useState<string>('');
+
+//   const { isLoading, error, data } = useQuery('fetch-data', () =>
+//     fetch('https://swapi.dev/api/people/').then((response) => response.json())
+//   );
+
+//   // const handleHeaderError = () => {
+//   //   setHasError(true);
+//   // };
+
+//   // const handleSearchFromHeader = (input: string) => {
+//   //   setSearchInput(input);
+//   // };
+
+//   return (
+//     <QueryClientProvider client={queryClient}>
+//       {error ? (
+//         <ErrorMessage />
+//       ) : (
+//         <>
+//           <Wrapper>
+//             <Header onInputChange={() => {}} />
+//             <ContentContainer>
+//               {isLoading ? JSON.stringify(data) : <Loader />}
+//             </ContentContainer>
+//           </Wrapper>
+//         </>
+//       )}
+//     </QueryClientProvider>
+//   );
+// }
+
+/* class App extends Component<object, State> {
   constructor(props: object) {
     super(props);
     this.state = {
@@ -145,6 +193,10 @@ class App extends Component<object, State> {
     this.setState({ searcInput: target.value });
   };
 
+  private handleSearchFromHeader = (input: string) => {
+    this.setState({ searcInput: input });
+  };
+
   private handleSearch() {
     this.fetchData(`${this.masterUrl}?search=${this.state.searcInput}`);
     localStorage.setItem('previousSearch', this.state.searcInput);
@@ -177,6 +229,7 @@ class App extends Component<object, State> {
         ) : (
           <ErrorBoundary>
             <Wrapper>
+              <Header onInputChange={this.handleSearchFromHeader} />
               <SearchContainer>
                 <input
                   placeholder={this.previousSearch}
@@ -248,4 +301,4 @@ class App extends Component<object, State> {
   }
 }
 
-export default App;
+export default App; */
