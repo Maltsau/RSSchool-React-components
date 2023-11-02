@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import errorImg from '../assets/images/error-image.png';
@@ -17,15 +16,11 @@ const ErrorText = styled.h1`
   text-align: center;
 `;
 
-class ErrorMessage extends Component {
-  render(): React.ReactNode {
-    return (
-      <ErrorContainer>
-        <ErrorImage src={errorImg} alt="error-image" />
-        <ErrorText>Something went wrong. Plese, reload the page.</ErrorText>
-      </ErrorContainer>
-    );
-  }
+export default function ErrorMessage() {
+  return (
+    <ErrorContainer>
+      <ErrorImage src={errorImg} alt="error-image" />
+      <ErrorText>Something went wrong. Plese, reload the page.</ErrorText>
+    </ErrorContainer>
+  );
 }
-
-export default ErrorMessage;

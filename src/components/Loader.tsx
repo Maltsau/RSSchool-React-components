@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import loaderImg from '../assets/images/loader-image.png';
@@ -26,14 +25,10 @@ const LoaderImage = styled.img`
   height: 160px;
 `;
 
-class Loader extends Component {
-  render(): React.ReactNode {
-    return (
-      <LoaderBody>
-        <LoaderImage src={loaderImg} alt="loader-image" />
-      </LoaderBody>
-    );
-  }
+export default function Loader() {
+  return (
+    <LoaderBody>
+      <LoaderImage src={loaderImg} alt="loader-image" />
+    </LoaderBody>
+  );
 }
-
-export default Loader;

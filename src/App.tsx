@@ -1,82 +1,93 @@
-import { useState } from 'react';
-import styled from 'styled-components';
-// import { QueryClient, QueryClientProvider } from 'react-query';
-import useFetchData from './hooks/useFetchData';
+// import { useState } from 'react';
+// import styled from 'styled-components';
+// // import { QueryClient, QueryClientProvider } from 'react-query';
+// import useFetchData from './hooks/useFetchData';
+import { Route, Routes } from 'react-router-dom';
 
-import Loader from './components/Loader';
-import ErrorMessage from './components/ErrorMessage';
-import NothingFoundMessage from './components/NothingFoundMessage';
-import Header from './components/Header';
+// import Loader from './components/Loader';
+// import ErrorMessage from './components/ErrorMessage';
+// import NothingFoundMessage from './components/NothingFoundMessage';
+// import Header from './components/Header';
+import Layout from './components/Layout';
+import PageLayout from './components/PageLayout';
 // import ErrorBoundary from './components/ErrorBoundary';
 // import { IDataBase } from './types';
 // import { useState } from 'react';
 
 // const queryClient = new QueryClient();
 
-const Wrapper = styled.main`
-  padding: 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 50px;
-`;
+// const Wrapper = styled.main`
+//   padding: 50px;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: flex-start;
+//   align-items: center;
+//   gap: 50px;
+// `;
 
-const ContentContainer = styled.div`
-  width: 100%;
-  min-height: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
+// const ContentContainer = styled.div`
+//   width: 100%;
+//   min-height: 500px;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+// `;
 
-const CharacterList = styled.ul`
-  width: 100%;
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  & li {
-    border: 1px solid white;
-    padding: 15px 10px;
-    font-size: 20px;
-  }
-`;
+// const CharacterList = styled.ul`
+//   width: 100%;
+//   list-style: none;
+//   padding: 0;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 5px;
+//   & li {
+//     border: 1px solid white;
+//     padding: 15px 10px;
+//     font-size: 20px;
+//   }
+// `;
 
-const PagginationControls = styled.div`
-  display: flex;
-  gap: 20px;
-`;
+// const PagginationControls = styled.div`
+//   display: flex;
+//   gap: 20px;
+// `;
 
-const PagginationItem = styled.div`
-  border-radius: 30px;
-  padding: 0 10px;
-  display: flex;
-  justify-content: center;
-  border: 1px solid white;
-`;
+// const PagginationItem = styled.div`
+//   border-radius: 30px;
+//   padding: 0 10px;
+//   display: flex;
+//   justify-content: center;
+//   border: 1px solid white;
+// `;
 
-const PagginationButton = styled(PagginationItem)<{ $active: boolean }>`
-  padding: 0 7px;
-  cursor: ${({ $active }) => ($active ? 'pointer' : 'auto')};
-  border: ${({ $active }) => ($active ? '1px solid white' : '1px solid grey')};
-  color: ${({ $active }) => ($active ? 'white' : 'grey')};
-`;
+// const PagginationButton = styled(PagginationItem)<{ $active: boolean }>`
+//   padding: 0 7px;
+//   cursor: ${({ $active }) => ($active ? 'pointer' : 'auto')};
+//   border: ${({ $active }) => ($active ? '1px solid white' : '1px solid grey')};
+//   color: ${({ $active }) => ($active ? 'white' : 'grey')};
+// `;
 
 export default function App() {
-  /* const [DB, setDB] = useState<IDataBase | object>({}); */
-  const [currentUrl /* setCurrentUrl */] = useState(
-    'https://swapi.dev/api/people/'
-  );
-
-  const { isError, isLoading, data, refetch } = useFetchData(currentUrl);
-  // if (isSuccess) {
-  //   setDB(data);
-  // }
-
   return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route path=":page_number" element={<PageLayout />}>
+          <Route path=":page_number/details" />
+        </Route>
+      </Route>
+    </Routes>
+  );
+}
+// const [DB, setDB] = useState<IDataBase | object>({});
+/* const [currentUrl, setCurrentUrl] = useState('https://swapi.dev/api/people/');
+
+  const { isError, isLoading, data } = useFetchData(currentUrl); */
+// if (isSuccess) {
+//   setDB(data);
+// }
+
+/* return (
     <Wrapper>
       <Header />
       {isError ? (
@@ -98,18 +109,22 @@ export default function App() {
             <PagginationControls>
               <PagginationButton
                 onClick={() => {
-                  refetch();
+                  setCurrentUrl(data.previous ? data.previous : currentUrl);
                 }}
               >{`<`}</PagginationButton>
               <PagginationItem>PAGE</PagginationItem>
-              <PagginationButton>{`>`}</PagginationButton>
+              <PagginationButton
+                onClick={() => {
+                  setCurrentUrl(data.next ? data.next : currentUrl);
+                }}
+              >{`>`}</PagginationButton>
             </PagginationControls>
           ) : null}
         </ContentContainer>
       )}
     </Wrapper>
-  );
-}
+  );*/
+// }
 
 // export default function App() {
 //   // const [hasError, setHasError] = useState<boolean>(false);
@@ -299,6 +314,6 @@ export default function App() {
       </>
     );
   }
-}
+}*/
 
-export default App; */
+// export default App;
