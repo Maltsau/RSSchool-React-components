@@ -10,6 +10,7 @@ import { Route, Routes } from 'react-router-dom';
 // import Header from './components/Header';
 import Layout from './components/Layout';
 import PageLayout from './components/PageLayout';
+import ItemWindow from './components/ItemWindow';
 // import ErrorBoundary from './components/ErrorBoundary';
 // import { IDataBase } from './types';
 // import { useState } from 'react';
@@ -72,9 +73,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route path=":page_number" element={<PageLayout />}>
-          <Route path=":page_number/details" />
+        <Route path="page=:page_number" element={<PageLayout />}>
+          <Route path="details=:item_name" element={<ItemWindow />}></Route>
         </Route>
+        <Route path="search=:page_number" element={<PageLayout />}></Route>
       </Route>
     </Routes>
   );

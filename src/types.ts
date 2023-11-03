@@ -7,6 +7,7 @@ interface ICharacter {
   eye_color: string;
   birth_year: string;
   gender: string;
+  url: string;
 }
 
 interface IDataBase {
