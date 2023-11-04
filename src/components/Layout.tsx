@@ -7,7 +7,7 @@ const Wrapper = styled.main`
   padding: 50px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   gap: 50px;
 `;

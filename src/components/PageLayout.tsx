@@ -1,9 +1,8 @@
 import styled from 'styled-components';
-import { useState } from 'react';
 import { useQuery } from 'react-query';
 import ky from 'ky';
 import { IDataBase } from '../types';
-import { Link, useParams, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
@@ -32,7 +31,6 @@ const CharacterList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 5px;
-
   & li {
     border: 1px solid white;
     padding: 15px 10px;
@@ -40,28 +38,53 @@ const CharacterList = styled.ul`
   }
 `;
 
-/* const fetchDBData = async () => {
-  const res = await ky.get('https://swapi.dev/api/people/').json<IDataBase>();
-  return res;
-}; */
+const PagginationControls = styled.div`
+  display: flex;
+  gap: 20px;
+`;
+
+const PagginationItem = styled.div`
+  border-radius: 30px;
+  padding: 0 10px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid white;
+`;
+
+const PagginationButton = styled(Link)<{ $active: boolean }>`
+  border-radius: 30px;
+  padding: 0 7px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid white;
+  cursor: ${({ $active }) => ($active ? 'pointer' : 'auto')};
+  border: ${({ $active }) => ($active ? '1px solid white' : '1px solid grey')};
+  color: ${({ $active }) => ($active ? 'white' : 'grey')};
+`;
 
 export default function PageLayout() {
+  const { page_number } = useParams();
+  const currentPage = Number(page_number);
+
   const navigate = useNavigate();
-  const [activeItem, setActiveItem] = useState<string | null>(null);
-  //   const [isItemWindowVisible, setIsItemWindowVisible] =
-  //     useState<boolean>(false);
-  const params = useParams();
-  console.log('params', params);
+
   const { data, isLoading, isError } = useQuery<IDataBase, Error>(
-    'FETCH_DATABASE',
+    ['FETCH_DATABASE', currentPage],
     async () => {
       const res = await ky
-        .get('https://swapi.dev/api/people/')
+        .get(`https://swapi.dev/api/people/?page=${currentPage}`)
         .json<IDataBase>();
       return res;
     }
   );
-  console.log('data', data);
+
+  const pages = data ? Math.ceil(data.count / 10) : 0;
+  console.log(
+    'currentPage',
+    currentPage,
+    'next',
+    `/page=${currentPage < pages ? currentPage + 1 : pages}`
+  );
 
   if (isLoading) {
     return <Loader />;
@@ -75,7 +98,7 @@ export default function PageLayout() {
     <HorisontalContainer>
       <SearchContentContainer
         onClick={() => {
-          navigate('/page=1');
+          navigate(`/page=${currentPage}`);
         }}
       >
         <CharacterList>
@@ -84,22 +107,35 @@ export default function PageLayout() {
               key={character.name}
               onClick={(e) => {
                 e.stopPropagation();
-                console.log('url', character.url);
-                setActiveItem(character.url);
               }}
             >
-              <Link
-                to={`details=${character.name
-                  .replaceAll(' ', '')
-                  .toLowerCase()}`}
-              >
+              <Link to={`details=${character.url.split('/')[5]}`}>
                 {character.name}
               </Link>
             </li>
           ))}
         </CharacterList>
+        {currentPage ? (
+          <PagginationControls>
+            <PagginationButton
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              to={`/page=${currentPage > 1 ? currentPage - 1 : 1}`}
+              $active={currentPage > 1}
+            >{`<`}</PagginationButton>
+            <PagginationItem>{`${currentPage} of ${pages}`}</PagginationItem>
+            <PagginationButton
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              to={`/page=${currentPage < pages ? currentPage + 1 : pages}`}
+              $active={currentPage < pages}
+            >{`>`}</PagginationButton>
+          </PagginationControls>
+        ) : null}
       </SearchContentContainer>
-      <Outlet context={activeItem} />
+      <Outlet />
     </HorisontalContainer>
   );
 }

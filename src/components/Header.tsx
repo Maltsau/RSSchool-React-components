@@ -35,10 +35,10 @@ export default function Header() {
 
   //   const handleSearch = () => {};
 
-  //   const throwError = () => {
-  //     setHasError(true);
-  //     throw new Error('This is a manually triggered error');
-  //   };
+  const throwError = () => {
+    //   setHasError(true);
+    throw new Error('This is a manually triggered error');
+  };
   return (
     <SearchContainer>
       <input
@@ -61,7 +61,7 @@ export default function Header() {
       </button>
       <button
         onClick={() => {
-          /* throwError(); */
+          throwError();
         }}
       >
         Throw Error
