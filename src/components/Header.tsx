@@ -1,5 +1,6 @@
-// import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
+import { Link, useParams } from 'react-router-dom';
 
 const SearchContainer = styled.div`
   width: 100%;
@@ -18,47 +19,32 @@ const SearchContainer = styled.div`
   }
 `;
 
+const SubmitButton = styled(Link)`
+  font-size: 20px;
+`;
+
 export default function Header() {
-  //   const [previousSearch, setPreviousSearch] = useState<string>(
-  //     localStorage.getItem('previousSearch') || ''
-  //   );
-  //   const [searchInput, setSearchInput] = useState<string>('');
-  //   const [hasError, setHasError] = useState<boolean>(false);
-
-  //   const handleSearchChange = (e: React.SyntheticEvent) => {
-  //     const target = e.target as HTMLInputElement;
-  //     setSearchInput(target.value);
-  //     localStorage.setItem('previousSearch', searchInput);
-  //     setPreviousSearch(searchInput);
-  //     onInputChange(target.value);
-  //   };
-
-  //   const handleSearch = () => {};
+  const { search_pattern } = useParams();
+  const [searchPattern, setSearchPattern] = useState('');
+  const directionOnSearch = searchPattern
+    ? `/search=${searchPattern}/page=1`
+    : `/page=1`;
 
   const throwError = () => {
-    //   setHasError(true);
     throw new Error('This is a manually triggered error');
   };
+  console.log(searchPattern);
   return (
     <SearchContainer>
       <input
-        placeholder={''}
         size={50}
         type="search"
-        value={''}
-        onChange={
-          (/* e */) => {
-            /* handleSearchChange(e); */
-          }
-        }
-      />
-      <button
-        onClick={() => {
-          /* handleSearch(); */
+        placeholder={search_pattern ? search_pattern : ''}
+        onChange={(e) => {
+          setSearchPattern(e.target.value);
         }}
-      >
-        Search
-      </button>
+      />
+      <SubmitButton to={directionOnSearch}>Search</SubmitButton>
       <button
         onClick={() => {
           throwError();

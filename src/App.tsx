@@ -76,7 +76,12 @@ export default function App() {
         <Route path="page=:page_number" element={<PageLayout />}>
           <Route path="details=:id" element={<ItemWindow />}></Route>
         </Route>
-        <Route path="search=:page_number" element={<PageLayout />}></Route>
+        <Route
+          path="search=:search_pattern/page=:page_number"
+          element={<PageLayout />}
+        >
+          <Route path="details=:id" element={<ItemWindow />}></Route>
+        </Route>
       </Route>
     </Routes>
   );

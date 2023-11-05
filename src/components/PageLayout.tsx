@@ -6,6 +6,7 @@ import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
+import NothingFoundMessage from './NothingFoundMessage';
 
 const HorisontalContainer = styled.div`
   width: 100%;
@@ -63,28 +64,35 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 `;
 
 export default function PageLayout() {
-  const { page_number } = useParams();
+  const { search_pattern, page_number } = useParams();
   const currentPage = Number(page_number);
+  console.log(search_pattern);
+
+  const options = {
+    fetchUrl: search_pattern
+      ? `https://swapi.dev/api/people/?search=${search_pattern}&page=${currentPage}`
+      : `https://swapi.dev/api/people/?page=${currentPage}`,
+
+    fetchIdentifier: search_pattern ? 'FETCH_DATABASE' : 'FETCH_SEARCH',
+
+    navUrlPrefix: search_pattern ? `/search=${search_pattern}/page=` : `/page=`,
+  };
 
   const navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery<IDataBase, Error>(
-    ['FETCH_DATABASE', currentPage],
+    [
+      options.fetchIdentifier,
+      search_pattern ? search_pattern : null,
+      currentPage,
+    ],
     async () => {
-      const res = await ky
-        .get(`https://swapi.dev/api/people/?page=${currentPage}`)
-        .json<IDataBase>();
+      const res = await ky.get(options.fetchUrl).json<IDataBase>();
       return res;
     }
   );
 
   const pages = data ? Math.ceil(data.count / 10) : 0;
-  console.log(
-    'currentPage',
-    currentPage,
-    'next',
-    `/page=${currentPage < pages ? currentPage + 1 : pages}`
-  );
 
   if (isLoading) {
     return <Loader />;
@@ -94,11 +102,15 @@ export default function PageLayout() {
     return <ErrorMessage />;
   }
 
+  if (!data.results.length) {
+    return <NothingFoundMessage />;
+  }
+
   return (
     <HorisontalContainer>
       <SearchContentContainer
         onClick={() => {
-          navigate(`/page=${currentPage}`);
+          navigate(`${options.navUrlPrefix}${currentPage}`);
         }}
       >
         <CharacterList>
@@ -115,13 +127,15 @@ export default function PageLayout() {
             </li>
           ))}
         </CharacterList>
-        {currentPage ? (
+        {pages > 1 ? (
           <PagginationControls>
             <PagginationButton
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              to={`/page=${currentPage > 1 ? currentPage - 1 : 1}`}
+              to={`${options.navUrlPrefix}${
+                currentPage > 1 ? currentPage - 1 : 1
+              }`}
               $active={currentPage > 1}
             >{`<`}</PagginationButton>
             <PagginationItem>{`${currentPage} of ${pages}`}</PagginationItem>
@@ -129,7 +143,9 @@ export default function PageLayout() {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              to={`/page=${currentPage < pages ? currentPage + 1 : pages}`}
+              to={`${options.navUrlPrefix}${
+                currentPage < pages ? currentPage + 1 : pages
+              }`}
               $active={currentPage < pages}
             >{`>`}</PagginationButton>
           </PagginationControls>
