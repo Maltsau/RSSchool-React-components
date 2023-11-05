@@ -11,6 +11,15 @@ const spin = keyframes`
   }
 `;
 
+const LoaderContainer = styled.div`
+  width: 100%;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
 const LoaderBody = styled.div`
   width: 130px;
   height: 130px;
@@ -27,8 +36,10 @@ const LoaderImage = styled.img`
 
 export default function Loader() {
   return (
-    <LoaderBody>
-      <LoaderImage src={loaderImg} alt="loader-image" />
-    </LoaderBody>
+    <LoaderContainer>
+      <LoaderBody>
+        <LoaderImage src={loaderImg} alt="loader-image" />
+      </LoaderBody>
+    </LoaderContainer>
   );
 }

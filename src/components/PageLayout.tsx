@@ -64,9 +64,12 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 `;
 
 export default function PageLayout() {
+  const navigate = useNavigate();
   const { search_pattern, page_number } = useParams();
+  if (!page_number) {
+    navigate('/page=1');
+  }
   const currentPage = Number(page_number);
-  console.log(search_pattern);
 
   const options = {
     fetchUrl: search_pattern
@@ -77,8 +80,6 @@ export default function PageLayout() {
 
     navUrlPrefix: search_pattern ? `/search=${search_pattern}/page=` : `/page=`,
   };
-
-  const navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery<IDataBase, Error>(
     [
