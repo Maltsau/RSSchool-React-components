@@ -31,6 +31,7 @@ const CloseIcon = styled(Link)`
     transform: rotate(45deg) translateX(14%);
   }
   & div:nth-child(2) {
+    border-bottom: 2px solid black;
     transform: rotate(-45deg) translateX(10%);
   }
 `;
@@ -57,7 +58,6 @@ const DottedSpace = styled.div`
 
 export default function CharacterWindow() {
   const location = useLocation();
-  console.log(location.pathname.split('/'));
   const { id } = useParams();
   const [isDeatailsVisible, setIsDeatailsVisible] = useState(id ? true : false);
 
@@ -78,10 +78,9 @@ export default function CharacterWindow() {
       setIsDeatailsVisible(true);
     }
   }, [id]);
-
   return (
     <ItemContainer $visible={isDeatailsVisible}>
-      <CloseIcon to={`/${location.pathname.split('/')[1]}`}>
+      <CloseIcon to={`${location.pathname.split('/').slice(0, -1).join('/')}`}>
         <CloseIconLine />
         <CloseIconLine />
       </CloseIcon>

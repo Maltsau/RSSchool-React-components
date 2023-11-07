@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useAppContext, ItemsPerPageType } from '../context/AppContext';
 
 const SearchContainer = styled.div`
   width: 100%;
   display: flex;
+  justify-content: space-between;
   gap: 10px;
-  & input {
+  & input,
+  select {
     font-size: 25px;
     padding: 0 5px;
   }
@@ -14,9 +17,16 @@ const SearchContainer = styled.div`
     cursor: pointer;
     font-size: 20px;
   }
-  & button:nth-child(3) {
-    margin-left: auto;
+  & label {
+    font-size: 25px;
+    display: flex;
+    gap: 20px;
   }
+`;
+
+const SearchGroup = styled.div`
+  display: flex;
+  gap: 20px;
 `;
 
 const SubmitButton = styled(Link)`
@@ -28,6 +38,7 @@ const SubmitButton = styled(Link)`
 `;
 
 export default function Header() {
+  const { itemsPerPage, setItemsPerPage } = useAppContext();
   const navigate = useNavigate();
   const { search_pattern } = useParams();
   const [searchPattern, setSearchPattern] = useState('');
@@ -41,20 +52,34 @@ export default function Header() {
 
   return (
     <SearchContainer>
-      <input
-        size={50}
-        type="search"
-        placeholder={search_pattern ? search_pattern : ''}
-        onChange={(e) => {
-          setSearchPattern(e.target.value);
-        }}
-        onKeyDown={(e: React.KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            navigate(directionOnSearch);
-          }
-        }}
-      />
-      <SubmitButton to={directionOnSearch}>Search</SubmitButton>
+      <SearchGroup>
+        <input
+          size={50}
+          type="search"
+          placeholder={search_pattern ? search_pattern : ''}
+          onChange={(e) => {
+            setSearchPattern(e.target.value);
+          }}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === 'Enter') {
+              navigate(directionOnSearch);
+            }
+          }}
+        />
+        <SubmitButton to={directionOnSearch}>Search</SubmitButton>
+      </SearchGroup>
+      <label>
+        Set items per page
+        <select
+          defaultValue={itemsPerPage}
+          onChange={(e) => {
+            setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
+          }}
+        >
+          <option>5</option>
+          <option>10</option>
+        </select>
+      </label>
       <button
         onClick={() => {
           throwError();

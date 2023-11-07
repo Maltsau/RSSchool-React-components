@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import nothingFoundImg from '../assets/images/nothing-found-image.png';
@@ -17,17 +16,13 @@ const NothingFoundText = styled.h1`
   text-align: center;
 `;
 
-class NothingFoundMessage extends Component {
-  render(): React.ReactNode {
-    return (
-      <NothingFoundContainer>
-        <NothingFoundImage src={nothingFoundImg} alt="nothing-found-image" />
-        <NothingFoundText>
-          Nothing was found for your request. Try again.
-        </NothingFoundText>
-      </NothingFoundContainer>
-    );
-  }
+export default function NothingFoundMessage() {
+  return (
+    <NothingFoundContainer>
+      <NothingFoundImage src={nothingFoundImg} alt="nothing-found-image" />
+      <NothingFoundText>
+        Nothing was found for your request. Try again.
+      </NothingFoundText>
+    </NothingFoundContainer>
+  );
 }
-
-export default NothingFoundMessage;

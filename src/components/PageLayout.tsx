@@ -4,6 +4,8 @@ import ky from 'ky';
 import { IDataBase } from '../types';
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
+import { useAppContext } from '../context/AppContext';
+
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
 import NothingFoundMessage from './NothingFoundMessage';
@@ -66,6 +68,7 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 export default function PageLayout() {
   const navigate = useNavigate();
   const { search_pattern, page_number } = useParams();
+  const { itemsPerPage } = useAppContext();
   if (!page_number) {
     navigate('/page=1');
   }
@@ -93,7 +96,7 @@ export default function PageLayout() {
     }
   );
 
-  const pages = data ? Math.ceil(data.count / 10) : 0;
+  const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
 
   if (isLoading) {
     return <Loader />;
@@ -114,6 +117,7 @@ export default function PageLayout() {
           navigate(`${options.navUrlPrefix}${currentPage}`);
         }}
       >
+        <div>{itemsPerPage}</div>
         <CharacterList>
           {data?.results.map((character) => (
             <li
