@@ -1,10 +1,8 @@
 import styled from 'styled-components';
-import { useQuery } from 'react-query';
-import ky from 'ky';
-import { IDataBase } from '../types';
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import { useAppContext } from '../context/AppContext';
+import { useFetchData } from '../hooks/useFetchData';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
@@ -84,17 +82,11 @@ export default function PageLayout() {
     navUrlPrefix: search_pattern ? `/search=${search_pattern}/page=` : `/page=`,
   };
 
-  const { data, isLoading, isError } = useQuery<IDataBase, Error>(
-    [
-      options.fetchIdentifier,
-      search_pattern ? search_pattern : null,
-      currentPage,
-    ],
-    async () => {
-      const res = await ky.get(options.fetchUrl).json<IDataBase>();
-      return res;
-    }
-  );
+  const { data, isLoading, isError } = useFetchData({
+    options: options,
+    currentPage: currentPage,
+    searchPattern: search_pattern,
+  });
 
   const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
 

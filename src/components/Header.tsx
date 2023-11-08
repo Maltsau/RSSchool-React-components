@@ -74,10 +74,11 @@ export default function Header() {
           defaultValue={itemsPerPage}
           onChange={(e) => {
             setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
+            navigate(`/page=1`);
           }}
         >
-          <option>5</option>
-          <option>10</option>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
         </select>
       </label>
       <button
