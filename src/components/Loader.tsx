@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import loaderImg from '../assets/images/loader-image.png';
@@ -10,6 +9,15 @@ const spin = keyframes`
   to {
     transform: rotate(360deg)
   }
+`;
+
+const LoaderContainer = styled.div`
+  width: 100%;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 const LoaderBody = styled.div`
@@ -26,14 +34,12 @@ const LoaderImage = styled.img`
   height: 160px;
 `;
 
-class Loader extends Component {
-  render(): React.ReactNode {
-    return (
+export default function Loader() {
+  return (
+    <LoaderContainer>
       <LoaderBody>
         <LoaderImage src={loaderImg} alt="loader-image" />
       </LoaderBody>
-    );
-  }
+    </LoaderContainer>
+  );
 }
-
-export default Loader;
