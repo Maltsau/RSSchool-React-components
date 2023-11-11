@@ -7,6 +7,7 @@ import { useFetchData } from '../hooks/useFetchData';
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
 import NothingFoundMessage from './NothingFoundMessage';
+import { ICharacter } from '../types';
 
 const HorisontalContainer = styled.div`
   width: 100%;
@@ -81,6 +82,13 @@ export default function PageLayout() {
 
     navUrlPrefix: search_pattern ? `/search=${search_pattern}/page=` : `/page=`,
   };
+  if (itemsPerPage === 5) {
+    options.fetchUrl = search_pattern
+      ? `https://swapi.dev/api/people/?search=${search_pattern}&page=${Math.ceil(
+          currentPage / 2
+        )}`
+      : `https://swapi.dev/api/people/?page=${Math.ceil(currentPage / 2)}`;
+  }
 
   const { data, isLoading, isError } = useFetchData({
     options: options,
@@ -89,6 +97,17 @@ export default function PageLayout() {
   });
 
   const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
+  let outputArr: ICharacter[] | [] = [];
+
+  if (itemsPerPage === 10) {
+    outputArr = data?.results as ICharacter[];
+  } else {
+    if (currentPage % 2) {
+      outputArr = data?.results.slice(0, 5) as ICharacter[];
+    } else {
+      outputArr = data?.results.slice(5) as ICharacter[];
+    }
+  }
 
   if (isLoading) {
     return <Loader />;
@@ -109,9 +128,8 @@ export default function PageLayout() {
           navigate(`${options.navUrlPrefix}${currentPage}`);
         }}
       >
-        <div>{itemsPerPage}</div>
         <CharacterList>
-          {data?.results.map((character) => (
+          {outputArr.map((character) => (
             <li
               key={character.name}
               onClick={(e) => {
