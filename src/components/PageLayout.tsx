@@ -67,7 +67,7 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 export default function PageLayout() {
   const navigate = useNavigate();
   const { search_pattern, page_number } = useParams();
-  const { itemsPerPage } = useAppContext();
+  const { itemsPerPage, currentItemList, setCurrentItemList } = useAppContext();
   if (!page_number) {
     navigate('/page=1');
   }
@@ -108,6 +108,12 @@ export default function PageLayout() {
       outputArr = data?.results.slice(5) as ICharacter[];
     }
   }
+
+  if (JSON.stringify(outputArr) !== JSON.stringify(currentItemList)) {
+    setCurrentItemList(outputArr);
+  }
+
+  console.log(currentItemList);
 
   if (isLoading) {
     return <Loader />;

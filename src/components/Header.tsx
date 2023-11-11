@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import styled from 'styled-components';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext, ItemsPerPageType } from '../context/AppContext';
 
 const SearchContainer = styled.div`
@@ -29,19 +28,11 @@ const SearchGroup = styled.div`
   gap: 20px;
 `;
 
-const SubmitButton = styled(Link)`
-  font-size: 20px;
-  background-color: white;
-  color: #242424;
-  padding-block: 1px;
-  padding-inline: 6px;
-`;
-
 export default function Header() {
   const { itemsPerPage, setItemsPerPage } = useAppContext();
   const navigate = useNavigate();
   const { search_pattern } = useParams();
-  const [searchPattern, setSearchPattern] = useState('');
+  const { searchPattern, setSearchPattern } = useAppContext();
   const directionOnSearch = searchPattern
     ? `/search=${searchPattern}/page=1`
     : `/page=1`;
@@ -66,7 +57,14 @@ export default function Header() {
             }
           }}
         />
-        <SubmitButton to={directionOnSearch}>Search</SubmitButton>
+        <button
+          onClick={() => {
+            localStorage.setItem('searchPattern', searchPattern);
+            navigate(directionOnSearch);
+          }}
+        >
+          Search
+        </button>
       </SearchGroup>
       <label>
         Set items per page
