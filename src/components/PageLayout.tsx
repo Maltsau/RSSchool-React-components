@@ -113,8 +113,6 @@ export default function PageLayout() {
     setCurrentItemList(outputArr);
   }
 
-  console.log(currentItemList);
-
   if (isLoading) {
     return <Loader />;
   }
