@@ -1,12 +1,14 @@
-import { useState } from 'react';
 import styled from 'styled-components';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAppContext, ItemsPerPageType } from '../context/AppContext';
 
 const SearchContainer = styled.div`
   width: 100%;
   display: flex;
+  justify-content: space-between;
   gap: 10px;
-  & input {
+  & input,
+  select {
     font-size: 25px;
     padding: 0 5px;
   }
@@ -14,23 +16,23 @@ const SearchContainer = styled.div`
     cursor: pointer;
     font-size: 20px;
   }
-  & button:nth-child(3) {
-    margin-left: auto;
+  & label {
+    font-size: 25px;
+    display: flex;
+    gap: 20px;
   }
 `;
 
-const SubmitButton = styled(Link)`
-  font-size: 20px;
-  background-color: white;
-  color: #242424;
-  padding-block: 1px;
-  padding-inline: 6px;
+const SearchGroup = styled.div`
+  display: flex;
+  gap: 20px;
 `;
 
 export default function Header() {
+  const { itemsPerPage, setItemsPerPage } = useAppContext();
   const navigate = useNavigate();
   const { search_pattern } = useParams();
-  const [searchPattern, setSearchPattern] = useState('');
+  const { searchPattern, setSearchPattern } = useAppContext();
   const directionOnSearch = searchPattern
     ? `/search=${searchPattern}/page=1`
     : `/page=1`;
@@ -41,20 +43,42 @@ export default function Header() {
 
   return (
     <SearchContainer>
-      <input
-        size={50}
-        type="search"
-        placeholder={search_pattern ? search_pattern : ''}
-        onChange={(e) => {
-          setSearchPattern(e.target.value);
-        }}
-        onKeyDown={(e: React.KeyboardEvent) => {
-          if (e.key === 'Enter') {
+      <SearchGroup>
+        <input
+          size={50}
+          type="search"
+          placeholder={search_pattern ? search_pattern : ''}
+          onChange={(e) => {
+            setSearchPattern(e.target.value);
+          }}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (e.key === 'Enter') {
+              navigate(directionOnSearch);
+            }
+          }}
+        />
+        <button
+          onClick={() => {
+            localStorage.setItem('searchPattern', searchPattern);
             navigate(directionOnSearch);
-          }
-        }}
-      />
-      <SubmitButton to={directionOnSearch}>Search</SubmitButton>
+          }}
+        >
+          Search
+        </button>
+      </SearchGroup>
+      <label>
+        Set items per page
+        <select
+          defaultValue={itemsPerPage}
+          onChange={(e) => {
+            setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
+            navigate(`/page=1`);
+          }}
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+        </select>
+      </label>
       <button
         onClick={() => {
           throwError();

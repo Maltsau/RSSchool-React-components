@@ -1,12 +1,13 @@
 import styled from 'styled-components';
-import { useQuery } from 'react-query';
-import ky from 'ky';
-import { IDataBase } from '../types';
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
+
+import { useAppContext } from '../context/AppContext';
+import { useFetchData } from '../hooks/useFetchData';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
 import NothingFoundMessage from './NothingFoundMessage';
+import { ICharacter } from '../types';
 
 const HorisontalContainer = styled.div`
   width: 100%;
@@ -66,6 +67,7 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 export default function PageLayout() {
   const navigate = useNavigate();
   const { search_pattern, page_number } = useParams();
+  const { itemsPerPage, currentItemList, setCurrentItemList } = useAppContext();
   if (!page_number) {
     navigate('/page=1');
   }
@@ -80,20 +82,36 @@ export default function PageLayout() {
 
     navUrlPrefix: search_pattern ? `/search=${search_pattern}/page=` : `/page=`,
   };
+  if (itemsPerPage === 5) {
+    options.fetchUrl = search_pattern
+      ? `https://swapi.dev/api/people/?search=${search_pattern}&page=${Math.ceil(
+          currentPage / 2
+        )}`
+      : `https://swapi.dev/api/people/?page=${Math.ceil(currentPage / 2)}`;
+  }
 
-  const { data, isLoading, isError } = useQuery<IDataBase, Error>(
-    [
-      options.fetchIdentifier,
-      search_pattern ? search_pattern : null,
-      currentPage,
-    ],
-    async () => {
-      const res = await ky.get(options.fetchUrl).json<IDataBase>();
-      return res;
+  const { data, isLoading, isError } = useFetchData({
+    options: options,
+    currentPage: currentPage,
+    searchPattern: search_pattern,
+  });
+
+  const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
+  let outputArr: ICharacter[] | [] = [];
+
+  if (itemsPerPage === 10) {
+    outputArr = data?.results as ICharacter[];
+  } else {
+    if (currentPage % 2) {
+      outputArr = data?.results.slice(0, 5) as ICharacter[];
+    } else {
+      outputArr = data?.results.slice(5) as ICharacter[];
     }
-  );
+  }
 
-  const pages = data ? Math.ceil(data.count / 10) : 0;
+  if (JSON.stringify(outputArr) !== JSON.stringify(currentItemList)) {
+    setCurrentItemList(outputArr);
+  }
 
   if (isLoading) {
     return <Loader />;
@@ -115,7 +133,7 @@ export default function PageLayout() {
         }}
       >
         <CharacterList>
-          {data?.results.map((character) => (
+          {outputArr.map((character) => (
             <li
               key={character.name}
               onClick={(e) => {
