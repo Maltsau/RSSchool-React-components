@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext, ItemsPerPageType } from '../context/AppContext';
+import { setItemsPerPage as setItemsPerPage2 } from '../store/itemsPerPageSlice';
+import { useAppSelector } from '../store/store';
+import { useDispatch } from 'react-redux';
 
 const SearchContainer = styled.div`
   width: 100%;
@@ -41,6 +44,9 @@ export default function Header() {
     throw new Error('This is a manually triggered error');
   };
 
+  const itemsPerPage2 = useAppSelector((state) => state.itemsPerPage.value);
+  const dispatch = useDispatch();
+
   return (
     <SearchContainer>
       <SearchGroup>
@@ -72,7 +78,12 @@ export default function Header() {
           defaultValue={itemsPerPage}
           onChange={(e) => {
             setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
+            dispatch(
+              setItemsPerPage2(Number(e.target.value) as ItemsPerPageType)
+            );
+            setItemsPerPage2(Number(e.target.value) as ItemsPerPageType);
             navigate(`/page=1`);
+            console.log(itemsPerPage2);
           }}
         >
           <option value={5}>5</option>
