@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAppContext, ItemsPerPageType } from '../context/AppContext';
-import { setItemsPerPage as setItemsPerPage2 } from '../store/itemsPerPageSlice';
+import { /* useParams, */ useNavigate } from 'react-router-dom';
+import { ItemsPerPageType } from '../context/AppContext';
+import { setItemsPerPage } from '../store/itemsPerPageSlice';
+import { setSearchPattern } from '../store/searchPatternSlice';
 import { useAppSelector } from '../store/store';
 import { useDispatch } from 'react-redux';
 
@@ -32,10 +33,12 @@ const SearchGroup = styled.div`
 `;
 
 export default function Header() {
-  const { itemsPerPage, setItemsPerPage } = useAppContext();
   const navigate = useNavigate();
-  const { search_pattern } = useParams();
-  const { searchPattern, setSearchPattern } = useAppContext();
+  // const { search_pattern } = useParams();
+  const itemsPerPage = useAppSelector((state) => state.itemsPerPage.value);
+  const searchPattern = useAppSelector((state) => state.searchPattern.value);
+  const dispatch = useDispatch();
+
   const directionOnSearch = searchPattern
     ? `/search=${searchPattern}/page=1`
     : `/page=1`;
@@ -44,8 +47,7 @@ export default function Header() {
     throw new Error('This is a manually triggered error');
   };
 
-  const itemsPerPage2 = useAppSelector((state) => state.itemsPerPage.value);
-  const dispatch = useDispatch();
+  console.log('page layout', searchPattern, itemsPerPage);
 
   return (
     <SearchContainer>
@@ -53,12 +55,13 @@ export default function Header() {
         <input
           size={50}
           type="search"
-          placeholder={search_pattern ? search_pattern : ''}
+          placeholder={searchPattern ? searchPattern : ''}
           onChange={(e) => {
-            setSearchPattern(e.target.value);
+            dispatch(setSearchPattern(e.target.value));
           }}
           onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Enter') {
+              localStorage.setItem('searchPattern', searchPattern);
               navigate(directionOnSearch);
             }
           }}
@@ -77,13 +80,11 @@ export default function Header() {
         <select
           defaultValue={itemsPerPage}
           onChange={(e) => {
-            setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
             dispatch(
-              setItemsPerPage2(Number(e.target.value) as ItemsPerPageType)
+              setItemsPerPage(Number(e.target.value) as ItemsPerPageType)
             );
-            setItemsPerPage2(Number(e.target.value) as ItemsPerPageType);
             navigate(`/page=1`);
-            console.log(itemsPerPage2);
+            console.log(itemsPerPage);
           }}
         >
           <option value={5}>5</option>
