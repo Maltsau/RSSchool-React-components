@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ItemsPerPageType } from '../context/AppContext';
+import { ItemsPerPageType } from '../types';
 import { setItemsPerPage } from '../store/itemsPerPageSlice';
 import { setSearchPattern } from '../store/searchPatternSlice';
 import { useAppSelector } from '../store/store';
@@ -54,8 +54,6 @@ export default function Header() {
     throw new Error('This is a manually triggered error');
   };
 
-  console.log('page layout', searchPattern, itemsPerPage);
-
   return (
     <SearchContainer>
       <SearchGroup>
@@ -91,7 +89,6 @@ export default function Header() {
               setItemsPerPage(Number(e.target.value) as ItemsPerPageType)
             );
             navigate(`/page=1`);
-            console.log(itemsPerPage);
           }}
         >
           <option value={5}>5</option>

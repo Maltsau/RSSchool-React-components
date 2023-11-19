@@ -17,4 +17,6 @@ interface IDataBase {
   results: ICharacter[];
 }
 
-export type { IDataBase, ICharacter };
+type ItemsPerPageType = 5 | 10;
+
+export type { IDataBase, ICharacter, ItemsPerPageType };
