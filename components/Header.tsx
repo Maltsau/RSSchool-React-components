@@ -32,6 +32,8 @@ const MainContainer = styled.main`
   padding: 1em;
   border: 1px solid white;
   margin-top: 1em;
+  display: flex;
+  gap: 2em;
 `;
 
 export default function Header({ children }: { children: ReactNode }) {
