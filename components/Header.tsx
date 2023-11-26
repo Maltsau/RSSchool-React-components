@@ -52,7 +52,6 @@ const MainContainer = styled.main`
 
 export default function Header({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { params } = router.query;
 
   const { itemsPerPage, setItemsPerPage, searchPattern, setSearchPattern } =
     useAppContext();
@@ -67,6 +66,13 @@ export default function Header({ children }: { children: ReactNode }) {
             placeholder={searchPattern}
             onChange={(e) => {
               setSearchPattern(e.target.value);
+            }}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                router.push(
+                  searchPattern ? `search=${searchPattern}/page=1` : '/page=1'
+                );
+              }
             }}
           />
           <SearchButton

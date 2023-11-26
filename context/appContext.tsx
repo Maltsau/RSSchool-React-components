@@ -1,7 +1,6 @@
 import { ReactNode, createContext, useState, useContext } from 'react';
 import { ICharacter } from '../types';
-
-export type ItemsPerPageType = 5 | 10;
+import { ItemsPerPageType } from '../types';
 
 interface AppContextPropsType {
   itemsPerPage: ItemsPerPageType;

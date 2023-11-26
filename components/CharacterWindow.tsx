@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { pathHasParam } from '@/utils/utils';
-import { useQuery } from 'react-query';
-import ky from 'ky';
 
+import { useFetchPerson } from '@/hooks/useFetch';
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
-import { ICharacter } from '@/types';
 import { findAnyParam } from '@/utils/utils';
 
 const ItemContainer = styled.div<{ $visible: boolean }>`
@@ -85,16 +83,11 @@ export default function CharacterWindow() {
     return '';
   };
 
-  const { data, isLoading, isError } = useQuery<ICharacter, Error>(
-    ['FETCH_PERSON', findAnyParam(params, 'details')],
-    async () => {
-      const res = await ky.get(formFetchUrl()).json<ICharacter>();
-      return res;
-    },
-    {
-      enabled: isDetailsVisible,
-    }
-  );
+  const { data, isLoading, isError } = useFetchPerson({
+    details: findAnyParam(params, 'details'),
+    fetchUrl: formFetchUrl(),
+    isDetailsVisible,
+  });
 
   return (
     <ItemContainer $visible={isDetailsVisible}>

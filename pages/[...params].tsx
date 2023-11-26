@@ -1,16 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
-import ky from 'ky';
-import { useQuery } from 'react-query';
 import Link from 'next/link';
 
-import { IDataBase } from '@/types';
 import Loader from '@/components/Loader';
 import ErrorMessage from '@/components/ErrorMessage';
 import NothingFoundMessage from '@/components/NothingFoundMessage';
 import CharacterWindow from '@/components/CharacterWindow';
 
+import { useFetchPeople } from '@/hooks/useFetch';
 import { pathHasParam, findAnyParam, replacePathParam } from '@/utils/utils';
 import { useAppContext } from '@/context/appContext';
 import { ICharacter } from '@/types';
@@ -71,10 +69,18 @@ export default () => {
   const searchPattern = findAnyParam(params, 'search');
   const hasDetails = pathHasParam(params, 'details');
 
+  const setFetchUrl = () => {
+    const baseApiUrl = 'https://swapi.dev/api/people/';
+    const pageModifier =
+      itemsPerPage === 5 ? Math.ceil(currentPage / 2) : currentPage;
+
+    return searchPattern
+      ? `${baseApiUrl}?search=${searchPattern}&page=${pageModifier}`
+      : `${baseApiUrl}?page=${pageModifier}`;
+  };
+
   const options = {
-    fetchUrl: searchPattern
-      ? `https://swapi.dev/api/people/?search=${searchPattern}&page=${currentPage}`
-      : `https://swapi.dev/api/people/?page=${currentPage}`,
+    fetchUrl: setFetchUrl(),
     fetchIdentifier: searchPattern ? 'FETCH_PEOPLE' : 'FETCH_SEARCH',
     paggination: {
       increasePath: hasDetails
@@ -94,13 +100,13 @@ export default () => {
     },
   };
 
-  const { data, isLoading, isError } = useQuery<IDataBase, Error>(
-    [options.fetchIdentifier, currentPage, searchPattern || null],
-    async () => {
-      const res = await ky.get(options.fetchUrl).json<IDataBase>();
-      return res;
-    }
-  );
+  const { data, isLoading, isError } = useFetchPeople({
+    fetchIdentifier: options.fetchIdentifier,
+    currentPage,
+    itemsPerPage,
+    searchPattern: searchPattern || null,
+    fetchUrl: options.fetchUrl,
+  });
   const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
   let outputArr: ICharacter[] | [] = [];
 
@@ -113,11 +119,6 @@ export default () => {
       outputArr = data?.results.slice(5) as ICharacter[];
     }
   }
-  console.log(
-    'path',
-    router.asPath,
-    replacePathParam(router.asPath, 'page', `page=${currentPage + 1}`)
-  );
 
   if (isLoading) {
     return <Loader />;
@@ -141,12 +142,11 @@ export default () => {
                 <Link
                   href={
                     pathHasParam(params, 'details')
-                      ? `${[
-                          ...router.asPath
-                            .split('/')
-                            .filter((item, pos, arr) => pos !== arr.length - 1),
-                          `/details=${character.url.split('/')[5]}`,
-                        ].join('')}`
+                      ? replacePathParam(
+                          router.asPath,
+                          'details',
+                          `details=${character.url.split('/')[5]}`
+                        )
                       : `${router.asPath}/details=${
                           character.url.split('/')[5]
                         }`

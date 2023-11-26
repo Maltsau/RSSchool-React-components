@@ -8,9 +8,6 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
 `;
-// const ErrorImage = styled.img`
-//   width: 300px;
-// `;
 
 const ErrorText = styled.h1`
   font-size: 40px;
@@ -20,7 +17,7 @@ const ErrorText = styled.h1`
 export default function ErrorMessage() {
   return (
     <ErrorContainer>
-      <Image src={errorImg} alt="error-image" />
+      <Image src={errorImg} height={480} alt="error-image" />
       <ErrorText>Something went wrong. Plese, reload the page.</ErrorText>
     </ErrorContainer>
   );
