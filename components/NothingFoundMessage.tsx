@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import Image from 'next/image';
 
 import nothingFoundImg from '../assets/images/nothing-found-image.png';
 
@@ -6,9 +7,6 @@ const NothingFoundContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-const NothingFoundImage = styled.img`
-  width: 300px;
 `;
 
 const NothingFoundText = styled.h1`
@@ -19,7 +17,7 @@ const NothingFoundText = styled.h1`
 export default function NothingFoundMessage() {
   return (
     <NothingFoundContainer>
-      <NothingFoundImage src={nothingFoundImg} alt="nothing-found-image" />
+      <Image src={nothingFoundImg} alt="nothing-found-image" />
       <NothingFoundText>
         Nothing was found for your request. Try again.
       </NothingFoundText>

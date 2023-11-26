@@ -6,6 +6,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
     'prettier',
+    'plugin:@next/next/recommended',
   ],
   ignorePatterns: ['**/*.css', '**/*.scss'],
   parser: '@typescript-eslint/parser',
@@ -22,7 +23,7 @@ module.exports = {
     jest: true,
     node: true,
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier'],
   rules: {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
