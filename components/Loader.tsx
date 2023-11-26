@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import Image from 'next/image';
 
 import loaderImg from '../assets/images/loader-image.png';
 
@@ -29,16 +30,11 @@ const LoaderBody = styled.div`
   align-items: center;
 `;
 
-const LoaderImage = styled.img`
-  width: 160px;
-  height: 160px;
-`;
-
 export default function Loader() {
   return (
     <LoaderContainer>
       <LoaderBody>
-        <LoaderImage src={loaderImg} alt="loader-image" />
+        <Image src={loaderImg} alt="loader-image" />
       </LoaderBody>
     </LoaderContainer>
   );
