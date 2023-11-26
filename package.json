@@ -14,12 +14,13 @@
     "coverage": "jest --coverage"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.7",
+    "@types/react-redux": "^7.1.30",
     "@types/styled-components": "^5.1.29",
     "eslint-config-airbnb-typescript": "^17.1.0",
-    "ky": "^1.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-query": "^3.39.3",
+    "react-redux": "^8.1.3",
     "react-router-dom": "^6.4.2",
     "styled-components": "^6.1.0"
   },

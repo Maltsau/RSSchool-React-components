@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppContext, ItemsPerPageType } from '../context/AppContext';
+import { ItemsPerPageType } from '../types';
+import { setItemsPerPage } from '../store/itemsPerPageSlice';
+import { setSearchPattern } from '../store/searchPatternSlice';
+import { useAppSelector } from '../store/store';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 
 const SearchContainer = styled.div`
   width: 100%;
@@ -29,13 +34,21 @@ const SearchGroup = styled.div`
 `;
 
 export default function Header() {
-  const { itemsPerPage, setItemsPerPage } = useAppContext();
   const navigate = useNavigate();
   const { search_pattern } = useParams();
-  const { searchPattern, setSearchPattern } = useAppContext();
+  const itemsPerPage = useAppSelector((state) => state.itemsPerPage.value);
+  const searchPattern = useAppSelector((state) => state.searchPattern.value);
+  const dispatch = useDispatch();
+
   const directionOnSearch = searchPattern
     ? `/search=${searchPattern}/page=1`
     : `/page=1`;
+
+  useEffect(() => {
+    if (search_pattern) {
+      dispatch(setSearchPattern(search_pattern));
+    }
+  }, [dispatch, search_pattern]);
 
   const throwError = () => {
     throw new Error('This is a manually triggered error');
@@ -49,10 +62,11 @@ export default function Header() {
           type="search"
           placeholder={search_pattern ? search_pattern : ''}
           onChange={(e) => {
-            setSearchPattern(e.target.value);
+            dispatch(setSearchPattern(e.target.value));
           }}
           onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Enter') {
+              localStorage.setItem('searchPattern', searchPattern);
               navigate(directionOnSearch);
             }
           }}
@@ -71,7 +85,9 @@ export default function Header() {
         <select
           defaultValue={itemsPerPage}
           onChange={(e) => {
-            setItemsPerPage(Number(e.target.value) as ItemsPerPageType);
+            dispatch(
+              setItemsPerPage(Number(e.target.value) as ItemsPerPageType)
+            );
             navigate(`/page=1`);
           }}
         >

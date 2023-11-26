@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import ky from 'ky';
+// import ky from 'ky';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { useQuery } from 'react-query';
-import { ICharacter } from '../types';
+// import { useQuery } from 'react-query';
+import { useGetPersonQuery } from '../store/getItemsApi';
+// import { ICharacter } from '../types';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
@@ -61,18 +62,20 @@ export default function CharacterWindow() {
   const { id } = useParams();
   const [isDeatailsVisible, setIsDeatailsVisible] = useState(id ? true : false);
 
-  const { data, isLoading, isError } = useQuery<ICharacter | null, Error>(
-    ['FETCH_CHARACTER', id],
-    async () => {
-      if (id) {
-        const res = await ky
-          .get(`https://swapi.dev/api/people/${id}/`)
-          .json<ICharacter>();
-        return res;
-      }
-      return null;
-    }
-  );
+  // const { data, isLoading, isError } = useQuery<ICharacter | null, Error>(
+  //   ['FETCH_CHARACTER', id],
+  //   async () => {
+  //     if (id) {
+  //       const res = await ky
+  //         .get(`https://swapi.dev/api/people/${id}/`)
+  //         .json<ICharacter>();
+  //       return res;
+  //     }
+  //     return null;
+  //   }
+  // );
+
+  const { data, isFetching, isError } = useGetPersonQuery(id || '');
   useEffect(() => {
     if (id) {
       setIsDeatailsVisible(true);
@@ -84,9 +87,9 @@ export default function CharacterWindow() {
         <CloseIconLine />
         <CloseIconLine />
       </CloseIcon>
-      {isLoading ? <Loader /> : null}
+      {isFetching ? <Loader /> : null}
       {isError ? <ErrorMessage /> : null}
-      {data && !isLoading && !isError && (
+      {data && !isFetching && !isError && (
         <>
           <h2>{data.name}</h2>
           <DescriptionRow>

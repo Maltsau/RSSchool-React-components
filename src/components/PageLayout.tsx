@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 
-import { useAppContext } from '../context/AppContext';
-import { useFetchData } from '../hooks/useFetchData';
+import { useAppSelector } from '../store/store';
+import { useGetPeopleQuery } from '../store/getItemsApi';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
@@ -67,7 +67,7 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
 export default function PageLayout() {
   const navigate = useNavigate();
   const { search_pattern, page_number } = useParams();
-  const { itemsPerPage, currentItemList, setCurrentItemList } = useAppContext();
+  const itemsPerPage = useAppSelector((state) => state.itemsPerPage.value);
   if (!page_number) {
     navigate('/page=1');
   }
@@ -90,10 +90,12 @@ export default function PageLayout() {
       : `https://swapi.dev/api/people/?page=${Math.ceil(currentPage / 2)}`;
   }
 
-  const { data, isLoading, isError } = useFetchData({
-    options: options,
-    currentPage: currentPage,
-    searchPattern: search_pattern,
+  const pageNumber =
+    itemsPerPage === 5 ? Math.ceil(currentPage / 2) : currentPage;
+
+  const { data, isFetching, isError } = useGetPeopleQuery({
+    page: pageNumber,
+    search: search_pattern,
   });
 
   const pages = data ? Math.ceil(data.count / itemsPerPage) : 0;
@@ -109,11 +111,7 @@ export default function PageLayout() {
     }
   }
 
-  if (JSON.stringify(outputArr) !== JSON.stringify(currentItemList)) {
-    setCurrentItemList(outputArr);
-  }
-
-  if (isLoading) {
+  if (isFetching) {
     return <Loader />;
   }
 
