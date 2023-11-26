@@ -60,7 +60,7 @@ const PagginationButton = styled(Link)<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? 'white' : 'grey')};
 `;
 
-export default () => {
+export default function HomePage() {
   const router = useRouter();
   const { params } = router.query;
   const { itemsPerPage } = useAppContext();
@@ -189,4 +189,4 @@ export default () => {
       ) : null}
     </>
   );
-};
+}
