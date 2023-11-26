@@ -2,13 +2,14 @@ import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { pathHasDetails } from '@/utils/utils';
+import { pathHasParam } from '@/utils/utils';
 import { useQuery } from 'react-query';
 import ky from 'ky';
 
 import Loader from './Loader';
 import ErrorMessage from './ErrorMessage';
 import { ICharacter } from '@/types';
+import { findAnyParam } from '@/utils/utils';
 
 const ItemContainer = styled.div<{ $visible: boolean }>`
   position: relative;
@@ -69,22 +70,15 @@ export default function CharacterWindow() {
   const { params } = router.query;
 
   const [isDetailsVisible, setIsDetailsVisible] = useState<boolean>(
-    pathHasDetails(params)
+    pathHasParam(params, 'details')
   );
 
   useEffect(() => {
-    setIsDetailsVisible(pathHasDetails(params));
+    setIsDetailsVisible(pathHasParam(params, 'details'));
   }, [params]);
 
-  const findDetailsParam = () => {
-    if (params && Array.isArray(params)) {
-      return params.find((item) => item.includes('details'))?.split('=')[1];
-    }
-    return '';
-  };
-
   const formFetchUrl = () => {
-    const detailsParam = findDetailsParam();
+    const detailsParam = findAnyParam(params, 'details');
     if (detailsParam) {
       return `https://swapi.dev/api/people/${detailsParam}`;
     }
@@ -92,7 +86,7 @@ export default function CharacterWindow() {
   };
 
   const { data, isLoading, isError } = useQuery<ICharacter, Error>(
-    ['FETCH_PERSON', findDetailsParam()],
+    ['FETCH_PERSON', findAnyParam(params, 'details')],
     async () => {
       const res = await ky.get(formFetchUrl()).json<ICharacter>();
       return res;
