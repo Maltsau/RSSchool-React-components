@@ -1,22 +1,28 @@
 import './App.css';
-import { Component, ReactNode } from 'react';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  createRoutesFromElements,
+} from 'react-router-dom';
 
-class App extends Component {
-  state = {
-    url: 'https://swapi.dev/api/people/',
-    data: null,
-  };
+import Layout from './components/pages/Layout';
+import MainPage from './components/pages/MainPage';
+import UncontrolledForm from './components/pages/UncontrolledForm';
+import ReactHookForm from './components/pages/ReactHookForm';
 
-  componentDidMount(): void {
-    fetch(this.state.url)
-      .then((response) => response.json())
-      .then((data) => this.setState({ data }));
-    console.log(this.state.data);
-  }
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<MainPage />} />
+        <Route path="/uncontroled-form" element={<UncontrolledForm />} />
+        <Route path="/react-hook-form" element={<ReactHookForm />} />
+      </Route>
+    </>
+  )
+);
 
-  render(): ReactNode {
-    return <>Hello</>;
-  }
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App;

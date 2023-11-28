@@ -8,6 +8,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:react/jsx-runtime',
   ],
   overrides: [],
   parser: '@typescript-eslint/parser',
@@ -29,5 +30,29 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     'react/jsx-uses-react': 'off',
     'react/react-in-jsx-scope': 'off',
+  },
+  settings: {
+    react: {
+      createClass: 'createReactClass',
+      pragma: 'React',
+      fragment: 'Fragment',
+      version: 'detect',
+      flowVersion: '0.53',
+    },
+    propWrapperFunctions: [
+      'forbidExtraProps',
+      { property: 'freeze', object: 'Object' },
+      { property: 'myFavoriteWrapper' },
+
+      { property: 'forbidExtraProps', exact: true },
+    ],
+    componentWrapperFunctions: [
+      'observer',
+      { property: 'styled' },
+      { property: 'observer', object: 'Mobx' },
+      { property: 'observer', object: '<pragma>' },
+    ],
+    formComponents: ['CustomForm', { name: 'Form', formAttribute: 'endpoint' }],
+    linkComponents: ['Hyperlink', { name: 'Link', linkAttribute: 'to' }],
   },
 };
