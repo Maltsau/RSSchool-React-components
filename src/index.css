@@ -18,3 +18,22 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+input {
+  width: 100%;
+  padding: 0.5em 1em;
+  font-size: 20px;
+}
+
+input[type='checkbox'] {
+  width: auto;
+}
