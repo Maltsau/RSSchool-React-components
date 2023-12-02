@@ -1,13 +1,29 @@
 import styled from 'styled-components';
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { FormStateType, GenderType } from '../../types';
 import uploadFileIcon from '../../assets/icons/upload-icon.svg';
+import validators from '../../services/validators';
 
 import { useDispatch } from 'react-redux';
 import { updateWholeForm } from '../../store/formReducer';
 import { useSelector } from 'react-redux';
 
+type PasswordStrengthType =
+  | ''
+  | 'Very weak password'
+  | 'Weak password'
+  | 'Strong password'
+  | 'Very strong password';
+
+const passwordStrengthMap = {
+  '': 'inherit',
+  'Very weak password': 'red',
+  'Weak password': '#FF9800',
+  'Strong password': '#d3db29',
+  'Very strong password': '#44e91b',
+};
 const Container = styled.form`
   padding: 2em 5em;
   display: flex;
@@ -19,6 +35,7 @@ const Container = styled.form`
   & > div > div {
     color: red;
     font-size: 1em;
+    height: 1em;
   }
   & > div > span {
     position: absolute;
@@ -48,6 +65,7 @@ const Container = styled.form`
 `;
 
 export default function UncontrolledForm() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const formData: FormStateType = useSelector(
     (state: { form: FormStateType }) => state.form
@@ -60,6 +78,55 @@ export default function UncontrolledForm() {
   const [gender, setGender] = useState<GenderType>('not chosen');
   const [tcConfirmed, setTcConfirmed] = useState(false);
   const [avatar, setAvatar] = useState('');
+
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    age: '',
+    email: '',
+    password: '',
+    passwordConfirm: '',
+    tcConfirmed: '',
+  });
+
+  const validateForm = () => {
+    const updatedFormData: FormStateType = {
+      name,
+      age,
+      email,
+      password,
+      passwordConfirm,
+      gender,
+      tcConfirmed,
+      avatar,
+    };
+
+    const {
+      isNameValid,
+      isAgeValid,
+      isEmailValid,
+      isPasswordValid,
+      isTcConfirmed,
+    } = validators(updatedFormData);
+
+    setValidationErrors({
+      name: isNameValid()
+        ? ''
+        : 'Name should start with a capital letter and be at least 2 characters long',
+      age: isAgeValid() ? '' : 'Age should be positive number',
+      email: isEmailValid() ? '' : 'Email is invalid',
+      password: isPasswordValid() ? '' : 'Passwords do not match',
+      passwordConfirm: isPasswordValid() ? '' : 'Passwords do not match',
+      tcConfirmed: isTcConfirmed() ? '' : 'Please, confirm T&C',
+    });
+
+    return (
+      isNameValid() &&
+      isAgeValid() &&
+      isEmailValid() &&
+      isPasswordValid() &&
+      isTcConfirmed()
+    );
+  };
 
   async function getBase64(file: File) {
     return new Promise((resolve, reject) => {
@@ -77,22 +144,25 @@ export default function UncontrolledForm() {
     });
   }
 
-  const passwordStrengthIndicator = (password: string) => {
-    const hasLowercase = /[a-z]/.test(password);
+  const passwordStrengthIndicator = (
+    password: string
+  ): PasswordStrengthType => {
     const hasUppercase = /[A-Z]/.test(password);
     const hasDigit = /\d/.test(password);
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const length = password.length;
 
-    if (!hasDigit && !hasUppercase && !hasSpecialChar && hasLowercase) {
+    if (length === 0) {
+      return '';
+    } else if (length <= 3 || (!hasDigit && !hasUppercase && !hasSpecialChar)) {
       return 'Very weak password';
-    } else if (!hasDigit) {
+    } else if (length <= 5 || (hasDigit && !hasUppercase && !hasSpecialChar)) {
       return 'Weak password';
-    } else if (!hasUppercase || !hasDigit) {
+    } else if (hasDigit && hasUppercase && !hasSpecialChar) {
       return 'Strong password';
-    } else if (!hasUppercase || !hasDigit || !hasSpecialChar) {
+    } else {
       return 'Very strong password';
     }
-    return 'Password strength cannot be determined';
   };
 
   const handleUpdateWholeForm = useMemo(
@@ -102,21 +172,29 @@ export default function UncontrolledForm() {
     [dispatch]
   );
 
+  const handleSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    const isFormValid = validateForm();
+    if (isFormValid) {
+      handleUpdateWholeForm({
+        name,
+        age,
+        email,
+        password,
+        passwordConfirm,
+        gender,
+        tcConfirmed,
+        avatar,
+      });
+      navigate('/');
+    }
+  };
+
   return (
     <Container
       onSubmit={(e) => {
-        e.preventDefault();
-        handleUpdateWholeForm({
-          name,
-          age,
-          email,
-          password,
-          passwordConfirm,
-          gender,
-          tcConfirmed,
-          avatar,
-        });
-        console.log('store', formData);
+        handleSubmit(e);
+        console.log(formData);
       }}
     >
       <h1>Fill out a simple form</h1>
@@ -128,7 +206,7 @@ export default function UncontrolledForm() {
             setName(e.target.value);
           }}
         />
-        <div>Error</div>
+        <div>{validationErrors.name}</div>
       </div>
       <div>
         <input
@@ -138,7 +216,7 @@ export default function UncontrolledForm() {
             setAge(Number(e.target.value));
           }}
         />
-        <div>Error</div>
+        <div>{validationErrors.age}</div>
       </div>
       <div>
         <input
@@ -148,7 +226,7 @@ export default function UncontrolledForm() {
             setEmail(e.target.value);
           }}
         />
-        <div>Error</div>
+        <div>{validationErrors.email}</div>
       </div>
       <div>
         <input
@@ -158,8 +236,16 @@ export default function UncontrolledForm() {
             setPassword(e.target.value);
           }}
         />
-        <span>{passwordStrengthIndicator(password)}</span>
-        <div>Error</div>
+        <span
+          style={{
+            color: `${
+              passwordStrengthMap[passwordStrengthIndicator(password)]
+            }`,
+          }}
+        >
+          {passwordStrengthIndicator(password)}
+        </span>
+        <div>{validationErrors.password}</div>
       </div>
       <div>
         <input
@@ -169,7 +255,7 @@ export default function UncontrolledForm() {
             setPasswordConfirm(e.target.value);
           }}
         />
-        <div>Error</div>
+        <div>{validationErrors.passwordConfirm}</div>
       </div>
       <div>
         <label>
@@ -205,7 +291,7 @@ export default function UncontrolledForm() {
           />
           Do you accept T&C?
         </label>
-        <div>Error</div>
+        <div>{validationErrors.tcConfirmed}</div>
       </div>
       <div>
         <label>
@@ -228,7 +314,6 @@ export default function UncontrolledForm() {
             <img src={avatar ? avatar : uploadFileIcon} />
           </div>
         </label>
-        <div>Error</div>
       </div>
       <input type="submit" />
     </Container>
