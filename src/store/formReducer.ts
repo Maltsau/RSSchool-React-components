@@ -16,16 +16,6 @@ const formSlice = createSlice({
   name: 'form',
   initialState,
   reducers: {
-    updateForm: (
-      state,
-      action: PayloadAction<{ field: string; value: string | number | boolean }>
-    ) => {
-      const { field, value } = action.payload;
-      return {
-        ...state,
-        [field]: value,
-      };
-    },
     resetForm: () => initialState,
     updateWholeForm: (state, action: PayloadAction<FormStateType>) => {
       return {
@@ -36,5 +26,5 @@ const formSlice = createSlice({
   },
 });
 
-export const { updateForm, resetForm, updateWholeForm } = formSlice.actions;
+export const { resetForm, updateWholeForm } = formSlice.actions;
 export default formSlice.reducer;
