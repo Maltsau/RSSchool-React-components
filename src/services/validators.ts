@@ -14,10 +14,10 @@ export default function validators(formState: FormStateType) {
       return emailPattern.test(formState.email);
     },
     isPasswordValid: () => {
-      return formState.password === formState.passwordConfirm;
+      return formState.password === formState.passwordConfirmation;
     },
     isTcConfirmed: () => {
-      return formState.tcConfirmed;
+      return formState.isTcAccepted;
     },
   };
   return options;

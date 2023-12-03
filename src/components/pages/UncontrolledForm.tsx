@@ -2,28 +2,18 @@ import styled from 'styled-components';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { FormStateType, GenderType } from '../../types';
+import {
+  FormStateType,
+  GenderType,
+  PasswordStrengthType,
+  passwordStrengthMap,
+} from '../../types';
 import uploadFileIcon from '../../assets/icons/upload-icon.svg';
 import validators from '../../services/validators';
 
 import { useDispatch } from 'react-redux';
 import { updateWholeForm } from '../../store/formReducer';
-import { useSelector } from 'react-redux';
 
-type PasswordStrengthType =
-  | ''
-  | 'Very weak password'
-  | 'Weak password'
-  | 'Strong password'
-  | 'Very strong password';
-
-const passwordStrengthMap = {
-  '': 'inherit',
-  'Very weak password': 'red',
-  'Weak password': '#FF9800',
-  'Strong password': '#d3db29',
-  'Very strong password': '#44e91b',
-};
 const Container = styled.form`
   padding: 2em 5em;
   display: flex;
@@ -67,16 +57,14 @@ const Container = styled.form`
 export default function UncontrolledForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const formData: FormStateType = useSelector(
-    (state: { form: FormStateType }) => state.form
-  );
+
   const [name, setName] = useState('');
   const [age, setAge] = useState(0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [passwordConfirmation, setPasswordConfirm] = useState('');
   const [gender, setGender] = useState<GenderType>('not chosen');
-  const [tcConfirmed, setTcConfirmed] = useState(false);
+  const [isTcAccepted, setIsTcAccepted] = useState(false);
   const [avatar, setAvatar] = useState('');
 
   const [validationErrors, setValidationErrors] = useState({
@@ -84,7 +72,7 @@ export default function UncontrolledForm() {
     age: '',
     email: '',
     password: '',
-    passwordConfirm: '',
+    passwordConfirmation: '',
     tcConfirmed: '',
   });
 
@@ -94,9 +82,9 @@ export default function UncontrolledForm() {
       age,
       email,
       password,
-      passwordConfirm,
+      passwordConfirmation,
       gender,
-      tcConfirmed,
+      isTcAccepted,
       avatar,
     };
 
@@ -115,7 +103,7 @@ export default function UncontrolledForm() {
       age: isAgeValid() ? '' : 'Age should be positive number',
       email: isEmailValid() ? '' : 'Email is invalid',
       password: isPasswordValid() ? '' : 'Passwords do not match',
-      passwordConfirm: isPasswordValid() ? '' : 'Passwords do not match',
+      passwordConfirmation: isPasswordValid() ? '' : 'Passwords do not match',
       tcConfirmed: isTcConfirmed() ? '' : 'Please, confirm T&C',
     });
 
@@ -181,9 +169,9 @@ export default function UncontrolledForm() {
         age,
         email,
         password,
-        passwordConfirm,
+        passwordConfirmation,
         gender,
-        tcConfirmed,
+        isTcAccepted,
         avatar,
       });
       navigate('/');
@@ -194,7 +182,6 @@ export default function UncontrolledForm() {
     <Container
       onSubmit={(e) => {
         handleSubmit(e);
-        console.log(formData);
       }}
     >
       <h1>Fill out a simple form</h1>
@@ -255,7 +242,7 @@ export default function UncontrolledForm() {
             setPasswordConfirm(e.target.value);
           }}
         />
-        <div>{validationErrors.passwordConfirm}</div>
+        <div>{validationErrors.passwordConfirmation}</div>
       </div>
       <div>
         <label>
@@ -284,9 +271,9 @@ export default function UncontrolledForm() {
         <label>
           <input
             type="checkbox"
-            checked={tcConfirmed}
+            checked={isTcAccepted}
             onChange={() => {
-              setTcConfirmed(!tcConfirmed);
+              setIsTcAccepted(!isTcAccepted);
             }}
           />
           Do you accept T&C?

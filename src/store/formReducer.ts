@@ -6,9 +6,9 @@ const initialState: FormStateType = {
   age: 0,
   email: '',
   password: '',
-  passwordConfirm: '',
+  passwordConfirmation: '',
   gender: 'not chosen',
-  tcConfirmed: false,
+  isTcAccepted: false,
   avatar: '',
 };
 
